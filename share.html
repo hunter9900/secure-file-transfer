@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Download - Secure File Transfer</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 min-h-screen">
+    <div class="container mx-auto px-4 py-12 max-w-2xl">
+        <div class="bg-white rounded-2xl shadow-xl p-8 text-center">
+            <h1 class="text-2xl font-bold mb-4">Secure File Download</h1>
+            <div id="fileInfo" class="mb-6">
+                <p class="text-gray-600">Preparing secure download...</p>
+            </div>
+            <button id="downloadBtn" class="bg-blue-600 text-white px-8 py-3 rounded-lg hover:bg-blue-700 transition disabled:opacity-50" disabled>Download</button>
+            <p class="text-sm text-gray-400 mt-4">Link expires after 30 days • Secure delivery</p>
+        </div>
+    </div>
+
+    <script>
+        const urlParams = new URLSearchParams(window.location.search);
+        const fileId = urlParams.get('id');
+        const CLOUD_NAME = 'dmskjzsi1';  // ← CHANGE THIS (same as before)
+
+        async function loadFile() {
+            if (!fileId) {
+                document.getElementById('fileInfo').innerHTML = '<p class="text-red-600">Invalid download link</p>';
+                return;
+            }
+
+            const downloadUrl = `https://res.cloudinary.com/${CLOUD_NAME}/raw/upload/fl_attachment/${fileId}`;
+            
+            document.getElementById('fileInfo').innerHTML = `
+                <p class="text-gray-800 font-medium">File is ready</p>
+                <p class="text-sm text-gray-500">Click download to save securely</p>
+            `;
+            
+            const btn = document.getElementById('downloadBtn');
+            btn.disabled = false;
+            btn.onclick = () => window.open(downloadUrl, '_blank');
+        }
+
+        loadFile();
+    </script>
+</body>
+</html>
