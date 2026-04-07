@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NEO TRANSFER | Login</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <style>
+        :root { --matrix-green: #00ff41; }
+        body {
+            background: linear-gradient(135deg, #050805 0%, #0a0f0a 100%);
+            color: var(--matrix-green);
+            font-family: 'Share Tech Mono', monospace;
+        }
+        .card {
+            background: rgba(10, 15, 10, 0.95);
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--matrix-green);
+            border-radius: 1rem;
+        }
+        .input-field {
+            background: rgba(0, 0, 0, 0.8);
+            border: 1px solid var(--matrix-green);
+            color: var(--matrix-green);
+            padding: 10px;
+            border-radius: 8px;
+            width: 100%;
+            font-family: monospace;
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, #00ff41 0%, #00cc33 100%);
+            color: #000;
+            padding: 12px;
+            border-radius: 8px;
+            font-weight: bold;
+            width: 100%;
+            cursor: pointer;
+        }
+        .glow-text {
+            text-shadow: 0 0 10px var(--matrix-green);
+        }
+    </style>
+</head>
+<body>
+    <div class="container mx-auto px-4 py-12 max-w-md">
+        <div class="card p-8">
+            <div class="text-center mb-6">
+                <div class="text-4xl mb-2">🔐</div>
+                <h1 class="text-2xl font-bold glow-text" style="font-family: 'Orbitron', monospace;">NEO TRANSFER</h1>
+                <p class="text-xs opacity-70 mt-2">SECURE_ACCESS_PORTAL</p>
+            </div>
+            
+            <div class="mb-4">
+                <label class="block mb-2 text-sm">EMAIL_ADDRESS:</label>
+                <input type="email" id="loginEmail" class="input-field" placeholder="user@example.com">
+            </div>
+            <div class="mb-4">
+                <label class="block mb-2 text-sm">PASSWORD:</label>
+                <input type="password" id="loginPassword" class="input-field" placeholder="••••••••">
+            </div>
+            
+            <button id="loginBtn" class="btn-primary">🔓 LOGIN</button>
+            
+            <div class="mt-4 text-center">
+                <button id="showDemoBtn" class="text-sm opacity-70 underline">>_ CONTINUE AS DEMO_USER</button>
+            </div>
+            
+            <div id="messageArea" class="mt-4 hidden">
+                <div id="messageText" class="text-sm text-center p-3 rounded"></div>
+            </div>
+        </div>
+        
+        <div class="mt-6 text-center text-xs opacity-50 font-mono">
+            <p>█▓▒░ DEMO_MODE_ACTIVE ░▒▓█ | █▓▒░ SIGNUP_AVAILABLE_SOON ░▒▓█</p>
+        </div>
+    </div>
+
+    <script>
+        // Demo user credentials
+        const DEMO_USER = {
+            email: 'demo@neotransfer.com',
+            password: 'demo123',
+            name: 'Demo User'
+        };
+        
+        function showMessage(msg, isError = false) {
+            const area = document.getElementById('messageArea');
+            const text = document.getElementById('messageText');
+            text.textContent = msg;
+            text.className = isError ? 'text-red-400' : 'text-green-400';
+            area.classList.remove('hidden');
+            setTimeout(() => area.classList.add('hidden'), 3000);
+        }
+        
+        function login(email, password) {
+            if (email === DEMO_USER.email && password === DEMO_USER.password) {
+                // Store user session
+                localStorage.setItem('neo_user', JSON.stringify({
+                    email: email,
+                    name: DEMO_USER.name,
+                    loggedIn: true,
+                    loginTime: new Date().toISOString()
+                }));
+                showMessage('✓ ACCESS GRANTED! Redirecting...');
+                setTimeout(() => {
+                    window.location.href = '/';
+                }, 1000);
+            } else {
+                showMessage('Access Denied: Invalid credentials', true);
+            }
+        }
+        
+        document.getElementById('loginBtn').addEventListener('click', () => {
+            const email = document.getElementById('loginEmail').value.trim();
+            const password = document.getElementById('loginPassword').value;
+            
+            if (!email || !password) {
+                showMessage('Please enter email and password', true);
+                return;
+            }
+            
+            login(email, password);
+        });
+        
+        document.getElementById('showDemoBtn').addEventListener('click', () => {
+            document.getElementById('loginEmail').value = 'demo@neotransfer.com';
+            document.getElementById('loginPassword').value = 'demo123';
+            showMessage('Demo credentials loaded. Click LOGIN to continue.');
+        });
+        
+        // Check if already logged in
+        const savedUser = localStorage.getItem('neo_user');
+        if (savedUser) {
+            try {
+                const user = JSON.parse(savedUser);
+                if (user.loggedIn) {
+                    window.location.href = '/';
+                }
+            } catch(e) {}
+        }
+    </script>
+</body>
+</html>
