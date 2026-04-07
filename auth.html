@@ -9,7 +9,263 @@
     <script src="https://cdn.tailwindcss.com"></script>
     
     <!-- Supabase SDK -->
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script>
+    // ========== SUPABASE CONNECTION ==========
+    // Initialize Supabase client
+    const SUPABASE_URL = 'https://heijzhvqyfjrhcmxagxs.supabase.co';
+    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhlaWp6aHZxeWZqcmhjbXhhZ3hzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU1ODQzMzIsImV4cCI6MjA5MTE2MDMzMn0.BRnW1xP8rXuat4D4HWKxvN0a_5UurauVnNVJorvVAoo';
+    
+    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    
+    // ========== THEME HANDLER ==========
+    function setTheme(theme) {
+        if (theme === 'dark') {
+            document.body.classList.remove('light-theme');
+            document.body.classList.add('matrix-theme');
+            localStorage.setItem('theme', 'dark');
+        } else {
+            document.body.classList.remove('matrix-theme');
+            document.body.classList.add('light-theme');
+            localStorage.setItem('theme', 'light');
+        }
+    }
+    
+    const savedTheme = localStorage.getItem('theme') || 'dark';
+    setTheme(savedTheme);
+    
+    document.getElementById('themeDark').addEventListener('click', () => setTheme('dark'));
+    document.getElementById('themeLight').addEventListener('click', () => setTheme('light'));
+    
+    // ========== TAB SWITCHING ==========
+    const loginTab = document.getElementById('loginTab');
+    const waitingTab = document.getElementById('waitingTab');
+    const loginForm = document.getElementById('loginForm');
+    const waitingForm = document.getElementById('waitingForm');
+    
+    loginTab.addEventListener('click', () => {
+        loginTab.classList.add('bg-green-500/20');
+        waitingTab.classList.remove('bg-green-500/20');
+        loginForm.classList.remove('hidden');
+        waitingForm.classList.add('hidden');
+    });
+    
+    waitingTab.addEventListener('click', () => {
+        waitingTab.classList.add('bg-green-500/20');
+        loginTab.classList.remove('bg-green-500/20');
+        loginForm.classList.add('hidden');
+        waitingForm.classList.remove('hidden');
+    });
+    
+    // ========== HELPER FUNCTIONS ==========
+    function showMessage(message, isError = false) {
+        const messageArea = document.getElementById('messageArea');
+        const messageText = document.getElementById('messageText');
+        messageText.textContent = message;
+        messageText.className = isError ? 'text-red-400' : 'text-green-400';
+        messageArea.classList.remove('hidden');
+        setTimeout(() => {
+            messageArea.classList.add('hidden');
+        }, 5000);
+    }
+    
+    // Hash password for storage (simple version - in production use bcrypt on backend)
+    async function hashPassword(password) {
+        const encoder = new TextEncoder();
+        const data = encoder.encode(password);
+        const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+        const hashArray = Array.from(new Uint8Array(hashBuffer));
+        return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+    }
+    
+    // ========== LOGIN HANDLER ==========
+    document.getElementById('loginBtn').addEventListener('click', async () => {
+        const email = document.getElementById('loginEmail').value.trim();
+        const password = document.getElementById('loginPassword').value;
+        
+        if (!email || !password) {
+            showMessage('Please enter email and password', true);
+            return;
+        }
+        
+        showMessage('>_ AUTHENTICATING...', false);
+        
+        try {
+            // Check if user exists in database
+            const { data: users, error } = await supabase
+                .from('users')
+                .select('*')
+                .eq('email', email);
+            
+            if (error) {
+                console.error('Database error:', error);
+                showMessage('Authentication error. Please try again.', true);
+                return;
+            }
+            
+            if (!users || users.length === 0) {
+                showMessage('Access Denied: No account found with this email. Join the waiting list.', true);
+                return;
+            }
+            
+            const user = users[0];
+            
+            // Check user status
+            if (user.status === 'pending') {
+                showMessage('Your account is pending approval. You will receive an email when activated.', true);
+                return;
+            }
+            
+            if (user.status === 'suspended') {
+                showMessage('Account suspended. Contact administrator.', true);
+                return;
+            }
+            
+            // Verify password (simple hash comparison)
+            const hashedInput = await hashPassword(password);
+            
+            if (hashedInput !== user.password_hash) {
+                showMessage('Invalid password', true);
+                return;
+            }
+            
+            // Update last login time
+            await supabase
+                .from('users')
+                .update({ last_login: new Date().toISOString() })
+                .eq('email', email);
+            
+            // Store user session
+            localStorage.setItem('neo_user', JSON.stringify({
+                id: user.id,
+                email: user.email,
+                full_name: user.full_name,
+                role: user.role,
+                loggedInAt: new Date().toISOString()
+            }));
+            
+            showMessage('✓ ACCESS GRANTED! Redirecting to dashboard...', false);
+            
+            // Redirect to dashboard
+            setTimeout(() => {
+                window.location.href = '/dashboard.html';
+            }, 1500);
+            
+        } catch (error) {
+            console.error('Login error:', error);
+            showMessage('Authentication failed. Please try again.', true);
+        }
+    });
+    
+    // ========== WAITING LIST HANDLER ==========
+    document.getElementById('joinWaitingBtn').addEventListener('click', async () => {
+        const email = document.getElementById('waitingEmail').value.trim();
+        const name = document.getElementById('waitingName').value.trim();
+        const reason = document.getElementById('waitingReason').value.trim();
+        
+        if (!email || !name) {
+            showMessage('Please enter email and name', true);
+            return;
+        }
+        
+        // Validate email format
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(email)) {
+            showMessage('Please enter a valid email address', true);
+            return;
+        }
+        
+        showMessage('>_ SUBMITTING TO WAITING LIST...', false);
+        
+        try {
+            // Check if already in waiting list
+            const { data: existing, error: checkError } = await supabase
+                .from('waiting_list')
+                .select('email')
+                .eq('email', email);
+            
+            if (existing && existing.length > 0) {
+                showMessage('You are already on the waiting list!', true);
+                return;
+            }
+            
+            // Check if user already has an account
+            const { data: existingUser, error: userCheckError } = await supabase
+                .from('users')
+                .select('email')
+                .eq('email', email);
+            
+            if (existingUser && existingUser.length > 0) {
+                showMessage('This email already has an account. Please log in.', true);
+                return;
+            }
+            
+            // Get current position
+            const { data: positionData, error: positionError } = await supabase
+                .from('waiting_list')
+                .select('position')
+                .order('position', { ascending: false })
+                .limit(1);
+            
+            let newPosition = 1;
+            if (positionData && positionData.length > 0 && positionData[0].position) {
+                newPosition = positionData[0].position + 1;
+            }
+            
+            // Add to waiting list
+            const { error: insertError } = await supabase
+                .from('waiting_list')
+                .insert([{
+                    email: email,
+                    name: name,
+                    reason: reason || null,
+                    position: newPosition,
+                    status: 'pending',
+                    created_at: new Date().toISOString()
+                }]);
+            
+            if (insertError) {
+                console.error('Insert error:', insertError);
+                showMessage('Error adding to waiting list. Please try again.', true);
+                return;
+            }
+            
+            showMessage(`✓ Added to waiting list! Position: #${newPosition}. You will be notified when access is available.`, false);
+            
+            // Clear form
+            document.getElementById('waitingEmail').value = '';
+            document.getElementById('waitingName').value = '';
+            document.getElementById('waitingReason').value = '';
+            
+        } catch (error) {
+            console.error('Waiting list error:', error);
+            showMessage('Failed to join waiting list. Please try again.', true);
+        }
+    });
+    
+    // ========== CHECK IF ALREADY LOGGED IN ==========
+    function checkExistingSession() {
+        const user = localStorage.getItem('neo_user');
+        if (user) {
+            try {
+                const userData = JSON.parse(user);
+                const loginTime = new Date(userData.loggedInAt);
+                const now = new Date();
+                const hoursDiff = (now - loginTime) / (1000 * 60 * 60);
+                
+                // Session expires after 24 hours
+                if (hoursDiff < 24) {
+                    window.location.href = '/dashboard.html';
+                } else {
+                    localStorage.removeItem('neo_user');
+                }
+            } catch (e) {
+                localStorage.removeItem('neo_user');
+            }
+        }
+    }
+    
+    checkExistingSession();
+</script>
     
     <style>
         :root {
