@@ -173,19 +173,19 @@
             const userJson = localStorage.getItem('neo_user');
             if (!userJson) {
                 // Not logged in, redirect to login page
-                window.location.href = '/file-transfer/login.html';
+                window.location.href = '/secure-file-transfer/login.html';
                 return null;
             }
             
             try {
                 const user = JSON.parse(userJson);
                 if (!user.loggedIn) {
-                    window.location.href = '/file-transfer/login.html';
+                    window.location.href = '/secure-file-transfer/login.html';
                     return null;
                 }
                 return user;
             } catch(e) {
-                window.location.href = '/file-transfer/login.html';
+                window.location.href = '/secure-file-transfer/login.html';
                 return null;
             }
         }
