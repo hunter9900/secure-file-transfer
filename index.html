@@ -9,7 +9,374 @@
     <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Source+Code Pro:wght@300;400;600&display=swap" rel="stylesheet">
     
-    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+    // ========== SUPABASE CONNECTION ==========
+    const SUPABASE_URL = 'https://heijzhvqyfjrhcmxagxs.supabase.co';
+    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhlaWp6aHZxeWZqcmhjbXhhZ3hzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU1ODQzMzIsImV4cCI6MjA5MTE2MDMzMn0.BRnW1xP8rXuat4D4HWKxvN0a_5UurauVnNVJorvVAoo';
+    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    
+    // ========== CHECK IF USER IS LOGGED IN ==========
+    let currentUser = null;
+    
+    async function checkAuth() {
+        const userJson = localStorage.getItem('neo_user');
+        if (!userJson) {
+            // Redirect to login page
+            window.location.href = '/auth.html';
+            return;
+        }
+        
+        try {
+            currentUser = JSON.parse(userJson);
+            
+            // Verify user still exists in database
+            const { data, error } = await supabase
+                .from('users')
+                .select('status')
+                .eq('email', currentUser.email)
+                .single();
+            
+            if (error || !data || data.status !== 'active') {
+                localStorage.removeItem('neo_user');
+                window.location.href = '/auth.html';
+                return;
+            }
+            
+            // Show user info in header
+            const userInfo = document.createElement('div');
+            userInfo.className = 'text-right mb-4 text-sm opacity-70';
+            userInfo.innerHTML = `>_ USER: ${currentUser.email} | <button id="logoutBtn" class="underline">LOGOUT</button>`;
+            const container = document.querySelector('.container');
+            container.insertBefore(userInfo, container.firstChild);
+            
+            document.getElementById('logoutBtn')?.addEventListener('click', () => {
+                localStorage.removeItem('neo_user');
+                window.location.href = '/auth.html';
+            });
+            
+        } catch (e) {
+            localStorage.removeItem('neo_user');
+            window.location.href = '/auth.html';
+        }
+    }
+    
+    // ========== MATRIX RAIN EFFECT ==========
+    const canvas = document.getElementById('matrixCanvas');
+    if (canvas) {
+        const ctx = canvas.getContext('2d');
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+        
+        const matrixChars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789@#$%^&*()+=[]{};:<>/?";
+        const fontSize = 14;
+        let columns = canvas.width / fontSize;
+        let drops = [];
+        
+        for (let i = 0; i < columns; i++) {
+            drops[i] = 1;
+        }
+        
+        function drawMatrix() {
+            if (document.body.classList.contains('matrix-theme')) {
+                ctx.fillStyle = 'rgba(5, 8, 5, 0.04)';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+                ctx.fillStyle = '#00ff41';
+                ctx.font = fontSize + 'px monospace';
+                
+                for (let i = 0; i < drops.length; i++) {
+                    const text = matrixChars.charAt(Math.floor(Math.random() * matrixChars.length));
+                    ctx.fillText(text, i * fontSize, drops[i] * fontSize);
+                    
+                    if (drops[i] * fontSize > canvas.height && Math.random() > 0.975) {
+                        drops[i] = 0;
+                    }
+                    drops[i]++;
+                }
+            } else {
+                ctx.fillStyle = 'rgba(255,255,255,0.02)';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+            }
+            requestAnimationFrame(drawMatrix);
+        }
+        
+        drawMatrix();
+    }
+    
+    // ========== THEME HANDLER ==========
+    function setTheme(theme) {
+        if (theme === 'dark') {
+            document.body.classList.remove('light-theme');
+            document.body.classList.add('matrix-theme');
+            localStorage.setItem('theme', 'dark');
+        } else if (theme === 'light') {
+            document.body.classList.remove('matrix-theme');
+            document.body.classList.add('light-theme');
+            localStorage.setItem('theme', 'light');
+        } else if (theme === 'auto') {
+            const hour = new Date().getHours();
+            if (hour >= 19 || hour < 6) {
+                document.body.classList.remove('light-theme');
+                document.body.classList.add('matrix-theme');
+            } else {
+                document.body.classList.remove('matrix-theme');
+                document.body.classList.add('light-theme');
+            }
+            localStorage.setItem('theme', 'auto');
+        }
+    }
+    
+    const savedTheme = localStorage.getItem('theme') || 'dark';
+    setTheme(savedTheme);
+    
+    document.getElementById('themeDark')?.addEventListener('click', () => setTheme('dark'));
+    document.getElementById('themeLight')?.addEventListener('click', () => setTheme('light'));
+    document.getElementById('themeAuto')?.addEventListener('click', () => setTheme('auto'));
+    
+    // ========== GEOLOCATION ==========
+    fetch('https://ipapi.co/json/')
+        .then(res => res.json())
+        .then(data => {
+            const locationElem = document.getElementById('geoLocation');
+            if (locationElem) {
+                if (data.country_code === 'DE' || data.country_code === 'FR' || data.country_code === 'NL' || data.country_code === 'CH') {
+                    locationElem.innerHTML = `${data.country_name} ✓ EU_COMPLIANT`;
+                    locationElem.classList.add('text-green-400');
+                } else {
+                    locationElem.innerHTML = `${data.country_name} (NON-EU) ⚠️`;
+                    locationElem.classList.add('text-yellow-400');
+                }
+            }
+        })
+        .catch(() => {
+            const locationElem = document.getElementById('geoLocation');
+            if (locationElem) locationElem.innerHTML = 'UNKNOWN';
+        });
+    
+    // ========== UPLOAD FUNCTIONALITY ==========
+    const CLOUD_NAME = 'dmskjzsi1';
+    const UPLOAD_PRESET = 'secure_uploads';
+    
+    const uploadArea = document.getElementById('uploadArea');
+    const fileInput = document.getElementById('fileInput');
+    const fileSettings = document.getElementById('fileSettings');
+    const progressArea = document.getElementById('progressArea');
+    const resultArea = document.getElementById('resultArea');
+    const progressBar = document.getElementById('progressBar');
+    const progressText = document.getElementById('progressText');
+    const fileName = document.getElementById('fileName');
+    const fileSize = document.getElementById('fileSize');
+    
+    let selectedFile = null;
+    
+    if (uploadArea) {
+        uploadArea.addEventListener('click', () => fileInput.click());
+        
+        uploadArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadArea.style.backgroundColor = 'rgba(0, 255, 65, 0.1)';
+        });
+        
+        uploadArea.addEventListener('dragleave', () => {
+            uploadArea.style.backgroundColor = 'transparent';
+        });
+        
+        uploadArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadArea.style.backgroundColor = 'transparent';
+            const file = e.dataTransfer.files[0];
+            if (file) selectFile(file);
+        });
+        
+        fileInput.addEventListener('change', (e) => {
+            if (e.target.files[0]) selectFile(e.target.files[0]);
+        });
+    }
+    
+    function selectFile(file) {
+        if (file.size > 5 * 1024 * 1024 * 1024) {
+            alert('File exceeds 5GB limit');
+            return;
+        }
+        selectedFile = file;
+        if (fileSettings) fileSettings.classList.remove('hidden');
+        if (uploadArea) uploadArea.classList.add('hidden');
+        if (fileName) fileName.textContent = file.name;
+        if (fileSize) fileSize.textContent = formatBytes(file.size);
+    }
+    
+    // Password protection toggle
+    const passwordProtect = document.getElementById('passwordProtect');
+    const filePassword = document.getElementById('filePassword');
+    
+    if (passwordProtect) {
+        passwordProtect.addEventListener('change', () => {
+            if (passwordProtect.checked) {
+                filePassword.classList.remove('hidden');
+                filePassword.disabled = false;
+            } else {
+                filePassword.classList.add('hidden');
+                filePassword.disabled = true;
+            }
+        });
+    }
+    
+    // Limit type toggles
+    const limitTypeDownloads = document.querySelector('input[value="downloads"]');
+    const limitTypeTime = document.querySelector('input[value="time"]');
+    const downloadsDiv = document.getElementById('downloadsLimitDiv');
+    const timeDiv = document.getElementById('timeLimitDiv');
+    const downloadsSlider = document.getElementById('downloadsLimit');
+    const timeSlider = document.getElementById('timeLimit');
+    const downloadsValue = document.getElementById('downloadsValue');
+    const timeValue = document.getElementById('timeValue');
+    
+    if (limitTypeDownloads) {
+        limitTypeDownloads.addEventListener('change', () => {
+            downloadsDiv.classList.remove('hidden');
+            timeDiv.classList.add('hidden');
+        });
+    }
+    
+    if (limitTypeTime) {
+        limitTypeTime.addEventListener('change', () => {
+            downloadsDiv.classList.add('hidden');
+            timeDiv.classList.remove('hidden');
+        });
+    }
+    
+    if (downloadsSlider) {
+        downloadsSlider.addEventListener('input', () => {
+            downloadsValue.textContent = downloadsSlider.value;
+        });
+    }
+    
+    if (timeSlider) {
+        timeSlider.addEventListener('input', () => {
+            timeValue.textContent = timeSlider.value;
+        });
+    }
+    
+    // Upload button
+    const uploadBtn = document.getElementById('uploadBtn');
+    
+    if (uploadBtn) {
+        uploadBtn.addEventListener('click', async () => {
+            if (!selectedFile) return;
+            if (!currentUser) {
+                alert('Please log in first');
+                window.location.href = '/auth.html';
+                return;
+            }
+            
+            const limitType = document.querySelector('input[name="limitType"]:checked').value;
+            const maxDownloads = limitType === 'downloads' ? parseInt(downloadsSlider.value) : 100;
+            const expiryDays = limitType === 'time' ? parseInt(timeSlider.value) : 30;
+            const requiresPassword = passwordProtect ? passwordProtect.checked : false;
+            const filePasswordValue = requiresPassword && filePassword ? filePassword.value : '';
+            const allowedDomains = document.getElementById('allowedDomains')?.value || '';
+            
+            if (requiresPassword && !filePasswordValue) {
+                alert('Please enter a password');
+                return;
+            }
+            
+            // Start upload
+            fileSettings.classList.add('hidden');
+            progressArea.classList.remove('hidden');
+            
+            const formData = new FormData();
+            formData.append('file', selectedFile);
+            formData.append('upload_preset', UPLOAD_PRESET);
+            formData.append('folder', `users/${currentUser.id}`);
+            formData.append('context', `max_downloads=${maxDownloads}|expiry_days=${expiryDays}|password_protected=${requiresPassword}|allowed_domains=${allowedDomains}|owner=${currentUser.email}`);
+            
+            try {
+                const xhr = new XMLHttpRequest();
+                xhr.open('POST', `https://api.cloudinary.com/v1_1/${CLOUD_NAME}/upload`);
+                
+                xhr.upload.onprogress = (e) => {
+                    if (e.lengthComputable) {
+                        const percent = (e.loaded / e.total) * 100;
+                        progressBar.style.width = `${percent}%`;
+                        progressText.innerHTML = `>_ UPLOADING: ${Math.round(percent)}% | ${formatBytes(e.loaded)} / ${formatBytes(e.total)}`;
+                    }
+                };
+                
+                xhr.onload = async () => {
+                    if (xhr.status === 200) {
+                        const response = JSON.parse(xhr.responseText);
+                        const shareUrl = `${window.location.origin}/download.html?id=${response.public_id}&expiry=${expiryDays}&max=${maxDownloads}&password=${requiresPassword ? '1' : '0'}`;
+                        document.getElementById('shareLink').value = shareUrl;
+                        document.getElementById('expiryInfo').innerHTML = `${expiryDays} DAYS OR ${maxDownloads} DOWNLOADS`;
+                        
+                        // Save file info to Supabase
+                        const expiresAt = new Date();
+                        expiresAt.setDate(expiresAt.getDate() + expiryDays);
+                        
+                        await supabase.from('files').insert([{
+                            file_id: response.public_id,
+                            owner_id: currentUser.id,
+                            original_name: selectedFile.name,
+                            size: selectedFile.size,
+                            expires_at: expiresAt.toISOString(),
+                            max_downloads: maxDownloads,
+                            requires_password: requiresPassword
+                        }]);
+                        
+                        progressArea.classList.add('hidden');
+                        resultArea.classList.remove('hidden');
+                    } else {
+                        alert('Upload failed. Please try again.');
+                        progressArea.classList.add('hidden');
+                        fileSettings.classList.remove('hidden');
+                    }
+                };
+                
+                xhr.onerror = () => {
+                    alert('Upload failed. Please try again.');
+                    progressArea.classList.add('hidden');
+                    fileSettings.classList.remove('hidden');
+                };
+                
+                xhr.send(formData);
+            } catch (error) {
+                alert('Upload failed: ' + error.message);
+                progressArea.classList.add('hidden');
+                fileSettings.classList.remove('hidden');
+            }
+        });
+    }
+    
+    // Copy button
+    document.getElementById('copyBtn')?.addEventListener('click', () => {
+        const link = document.getElementById('shareLink');
+        link.select();
+        document.execCommand('copy');
+        const btn = document.getElementById('copyBtn');
+        const originalText = btn.innerHTML;
+        btn.innerHTML = '✓ COPIED!';
+        setTimeout(() => {
+            btn.innerHTML = originalText;
+        }, 2000);
+    });
+    
+    // Email button
+    document.getElementById('emailBtn')?.addEventListener('click', () => {
+        const link = document.getElementById('shareLink').value;
+        window.location.href = `mailto:?subject=Secure File Transfer&body=I've sent you a secure file. Download it here: ${link}`;
+    });
+    
+    function formatBytes(bytes) {
+        if (bytes === 0) return '0 Bytes';
+        const k = 1024;
+        const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+        const i = Math.floor(Math.log(bytes) / Math.log(k));
+        return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+    }
+    
+    // Check authentication on page load
+    checkAuth();
+</script>
     
     <style>
         /* Custom Matrix Theme Variables */
