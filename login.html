@@ -198,7 +198,7 @@
                 
                 showMessage('✓ ACCESS GRANTED! Redirecting...', false);
                 setTimeout(() => {
-                    window.location.href = '/file-transfer/';
+                    window.location.href = '/secure-file-transfer/';
                 }, 1000);
                 
             } catch (error) {
@@ -284,7 +284,7 @@
                     
                     // Session expires after 24 hours
                     if (hoursDiff < 24) {
-                        window.location.href = '/file-transfer/login.html';
+                        window.location.href = '/secure-file-transfer/login.html';
                     } else {
                         localStorage.removeItem('neo_user');
                     }
