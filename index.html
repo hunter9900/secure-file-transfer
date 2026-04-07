@@ -167,6 +167,53 @@
         
         document.getElementById('themeDark').addEventListener('click', () => setTheme('dark'));
         document.getElementById('themeLight').addEventListener('click', () => setTheme('light'));
+
+                // ========== CHECK LOGIN STATUS ==========
+        function checkLogin() {
+            const userJson = localStorage.getItem('neo_user');
+            if (!userJson) {
+                // Not logged in, redirect to login page
+                window.location.href = '/login.html';
+                return null;
+            }
+            
+            try {
+                const user = JSON.parse(userJson);
+                if (!user.loggedIn) {
+                    window.location.href = '/login.html';
+                    return null;
+                }
+                return user;
+            } catch(e) {
+                window.location.href = '/login.html';
+                return null;
+            }
+        }
+        
+        // Add user info to the page
+        function addUserBar(user) {
+            const container = document.querySelector('.container');
+            const userBar = document.createElement('div');
+            userBar.className = 'flex justify-between items-center mb-4 p-3 border border-green-500/30 rounded-lg';
+            userBar.innerHTML = `
+                <div class="text-sm">
+                    <span class="opacity-70">>_ USER:</span> ${user.email}
+                </div>
+                <button id="logoutBtn" class="text-sm underline cursor-pointer">LOGOUT</button>
+            `;
+            container.insertBefore(userBar, container.firstChild);
+            
+            document.getElementById('logoutBtn').addEventListener('click', () => {
+                localStorage.removeItem('neo_user');
+                window.location.href = '/login.html';
+            });
+        }
+        
+        // Run login check
+        const currentUser = checkLogin();
+        if (currentUser) {
+            addUserBar(currentUser);
+        }
         
         // ========== UPLOAD FUNCTIONALITY ==========
         const uploadArea = document.getElementById('uploadArea');
