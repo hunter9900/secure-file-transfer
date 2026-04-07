@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NEO TRANSFER | Authentication</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    
+    <style>
+        :root { --matrix-green: #00ff41; }
+        body.matrix-theme {
+            background: linear-gradient(135deg, #050805 0%, #0a0f0a 100%);
+            color: var(--matrix-green);
+            font-family: 'Share Tech Mono', monospace;
+        }
+        body.light-theme {
+            background: linear-gradient(135deg, #f5f5f5 0%, #e0e0e0 100%);
+            color: #1a1a1a;
+            font-family: 'Orbitron', monospace;
+        }
+        .card {
+            background: rgba(10, 15, 10, 0.95);
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--matrix-green);
+            border-radius: 1rem;
+            padding: 2rem;
+        }
+        .light-theme .card {
+            background: rgba(255, 255, 255, 0.95);
+            border: 1px solid #333;
+        }
+        .input-field {
+            background: rgba(0, 0, 0, 0.8);
+            border: 1px solid var(--matrix-green);
+            color: var(--matrix-green);
+            padding: 10px;
+            border-radius: 8px;
+            width: 100%;
+            font-family: monospace;
+        }
+        .light-theme .input-field {
+            background: white;
+            border: 1px solid #ccc;
+            color: #333;
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, #00ff41 0%, #00cc33 100%);
+            color: #000;
+            padding: 12px;
+            border-radius: 8px;
+            font-weight: bold;
+            width: 100%;
+            cursor: pointer;
+        }
+        .light-theme .btn-primary {
+            background: linear-gradient(135deg, #1a1a1a 0%, #333 100%);
+            color: white;
+        }
+        .glow-text { text-shadow: 0 0 10px var(--matrix-green); }
+    </style>
+</head>
+<body class="matrix-theme">
+    <div class="container mx-auto px-4 py-12 max-w-md">
+        <div class="flex justify-end mb-4 gap-2">
+            <button id="themeDark" class="px-3 py-1 rounded text-sm bg-green-900/50">🌙 DARK</button>
+            <button id="themeLight" class="px-3 py-1 rounded text-sm">☀️ LIGHT</button>
+        </div>
+        
+        <div class="card">
+            <div class="text-center mb-6">
+                <div class="text-4xl mb-2">🔐</div>
+                <h1 class="text-2xl font-bold glow-text" style="font-family: 'Orbitron', monospace;">AUTHENTICATION</h1>
+                <p class="text-xs opacity-70 mt-2">SECURE_ACCESS_PROTOCOL v1.0</p>
+            </div>
+            
+            <div class="flex gap-2 mb-6">
+                <button id="loginTab" class="flex-1 py-2 rounded border border-green-500 bg-green-500/20">LOGIN</button>
+                <button id="waitingTab" class="flex-1 py-2 rounded border border-green-500">WAITING LIST</button>
+            </div>
+            
+            <div id="loginForm">
+                <div class="mb-4">
+                    <label class="block mb-2 text-sm">EMAIL_ADDRESS:</label>
+                    <input type="email" id="loginEmail" class="input-field" placeholder="user@example.com">
+                </div>
+                <div class="mb-4">
+                    <label class="block mb-2 text-sm">PASSWORD:</label>
+                    <input type="password" id="loginPassword" class="input-field" placeholder="••••••••">
+                </div>
+                <button id="loginBtn" class="btn-primary">🔓 LOGIN</button>
+            </div>
+            
+            <div id="waitingForm" class="hidden">
+                <div class="mb-4">
+                    <label class="block mb-2 text-sm">EMAIL_ADDRESS:</label>
+                    <input type="email" id="waitingEmail" class="input-field" placeholder="user@example.com">
+                </div>
+                <div class="mb-4">
+                    <label class="block mb-2 text-sm">FULL_NAME:</label>
+                    <input type="text" id="waitingName" class="input-field" placeholder="John Doe">
+                </div>
+                <button id="joinWaitingBtn" class="btn-primary">📝 JOIN WAITING LIST</button>
+            </div>
+            
+            <div id="messageArea" class="mt-4 hidden">
+                <div id="messageText" class="text-sm text-center p-3 rounded"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const SUPABASE_URL = 'https://heijzhvqyfjrhcmxagxs.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhlaWp6aHZxeWZqcmhjbXhhZ3hzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU1ODQzMzIsImV4cCI6MjA5MTE2MDMzMn0.BRnW1xP8rXuat4D4HWKxvN0a_5UurauVnNVJorvVAoo';
+        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        
+        function setTheme(theme) {
+            if (theme === 'dark') {
+                document.body.classList.remove('light-theme');
+                document.body.classList.add('matrix-theme');
+                localStorage.setItem('theme', 'dark');
+            } else {
+                document.body.classList.remove('matrix-theme');
+                document.body.classList.add('light-theme');
+                localStorage.setItem('theme', 'light');
+            }
+        }
+        
+        const savedTheme = localStorage.getItem('theme') || 'dark';
+        setTheme(savedTheme);
+        
+        document.getElementById('themeDark').addEventListener('click', () => setTheme('dark'));
+        document.getElementById('themeLight').addEventListener('click', () => setTheme('light'));
+        
+        document.getElementById('loginTab').addEventListener('click', () => {
+            document.getElementById('loginTab').classList.add('bg-green-500/20');
+            document.getElementById('waitingTab').classList.remove('bg-green-500/20');
+            document.getElementById('loginForm').classList.remove('hidden');
+            document.getElementById('waitingForm').classList.add('hidden');
+        });
+        
+        document.getElementById('waitingTab').addEventListener('click', () => {
+            document.getElementById('waitingTab').classList.add('bg-green-500/20');
+            document.getElementById('loginTab').classList.remove('bg-green-500/20');
+            document.getElementById('loginForm').classList.add('hidden');
+            document.getElementById('waitingForm').classList.remove('hidden');
+        });
+        
+        function showMessage(msg, isError = false) {
+            const area = document.getElementById('messageArea');
+            const text = document.getElementById('messageText');
+            text.textContent = msg;
+            text.className = isError ? 'text-red-400' : 'text-green-400';
+            area.classList.remove('hidden');
+            setTimeout(() => area.classList.add('hidden'), 5000);
+        }
+        
+        async function hashPassword(password) {
+            const encoder = new TextEncoder();
+            const data = encoder.encode(password);
+            const hash = await crypto.subtle.digest('SHA-256', data);
+            return Array.from(new Uint8Array(hash)).map(b => b.toString(16).padStart(2, '0')).join('');
+        }
+        
+        document.getElementById('loginBtn').addEventListener('click', async () => {
+            const email = document.getElementById('loginEmail').value.trim();
+            const password = document.getElementById('loginPassword').value;
+            
+            if (!email || !password) { showMessage('Please enter email and password', true); return; }
+            
+            showMessage('>_ AUTHENTICATING...', false);
+            
+            const { data: users, error } = await supabase.from('users').select('*').eq('email', email);
+            
+            if (error || !users || users.length === 0) {
+                showMessage('Access Denied: No account found', true);
+                return;
+            }
+            
+            const user = users[0];
+            if (user.status !== 'active') { showMessage('Account pending approval', true); return; }
+            
+            const hashedInput = await hashPassword(password);
+            if (hashedInput !== user.password_hash) { showMessage('Invalid password', true); return; }
+            
+            await supabase.from('users').update({ last_login: new Date().toISOString() }).eq('email', email);
+            
+            localStorage.setItem('neo_user', JSON.stringify({ id: user.id, email: user.email, full_name: user.full_name, role: user.role }));
+            
+            showMessage('✓ ACCESS GRANTED! Redirecting...', false);
+            setTimeout(() => { window.location.href = '/'; }, 1500);
+        });
+        
+        document.getElementById('joinWaitingBtn').addEventListener('click', async () => {
+            const email = document.getElementById('waitingEmail').value.trim();
+            const name = document.getElementById('waitingName').value.trim();
+            
+            if (!email || !name) { showMessage('Please enter email and name', true); return; }
+            
+            const { data: existing } = await supabase.from('waiting_list').select('email').eq('email', email);
+            if (existing && existing.length > 0) { showMessage('Already on waiting list', true); return; }
+            
+            const { data: positionData } = await supabase.from('waiting_list').select('position').order('position', { ascending: false }).limit(1);
+            const newPosition = (positionData && positionData[0]?.position) ? positionData[0].position + 1 : 1;
+            
+            const { error } = await supabase.from('waiting_list').insert([{ email, name, position: newPosition, status: 'pending' }]);
+            
+            if (error) { showMessage('Error joining waiting list', true); }
+            else { showMessage(`✓ Added! Position: #${newPosition}`, false); }
+        });
+    </script>
+</body>
+</html>
