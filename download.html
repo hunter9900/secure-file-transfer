@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SECURE DOWNLOAD | NEO TRANSFER</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <style>
+        :root {
+            --matrix-green: #00ff41;
+            --matrix-dark: #0a0f0a;
+            --matrix-red: #ff0040;
+            --matrix-orange: #ff8800;
+        }
+        
+        body.matrix-theme {
+            background: linear-gradient(135deg, #050805 0%, #0a0f0a 100%);
+            color: var(--matrix-green);
+            font-family: 'Share Tech Mono', monospace;
+        }
+        
+        body.light-theme {
+            background: linear-gradient(135deg, #f5f5f5 0%, #e0e0e0 100%);
+            color: #1a1a1a;
+            font-family: 'Orbitron', monospace;
+        }
+        
+        .card {
+            background: rgba(10, 15, 10, 0.95);
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--matrix-green);
+            box-shadow: 0 0 30px rgba(0, 255, 65, 0.2);
+        }
+        
+        .light-theme .card {
+            background: rgba(255, 255, 255, 0.95);
+            border: 1px solid #333;
+        }
+        
+        .scanning {
+            animation: pulse 1s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        
+        .virus-found {
+            color: var(--matrix-red);
+            text-shadow: 0 0 10px var(--matrix-red);
+        }
+        
+        .safe {
+            color: var(--matrix-green);
+            text-shadow: 0 0 10px var(--matrix-green);
+        }
+        
+        .progress-scan {
+            background: linear-gradient(90deg, var(--matrix-green), #00ff88, var(--matrix-green));
+            background-size: 200% 100%;
+            animation: shimmer 2s infinite;
+        }
+        
+        @keyframes shimmer {
+            0% { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
+        }
+    </style>
+</head>
+<body class="matrix-theme">
+    <div class="container mx-auto px-4 py-12 max-w-2xl">
+        <div class="card rounded-2xl p-8">
+            <!-- Header -->
+            <div class="text-center mb-6">
+                <div class="text-5xl mb-3">🛡️</div>
+                <h1 class="text-2xl font-bold" style="font-family: 'Orbitron', monospace;">SECURE_DOWNLOAD_PORTAL</h1>
+                <p class="text-xs opacity-70 mt-2">ENCRYPTED • TRACKED • VERIFIED</p>
+            </div>
+            
+            <!-- File Info -->
+            <div id="fileInfoArea" class="mb-6 p-4 border border-green-500/30 rounded-lg">
+                <p id="fileStatus" class="text-center font-mono">>_ CONNECTING_TO_SECURE_GATEWAY...</p>
+            </div>
+            
+            <!-- Password Prompt (if needed) -->
+            <div id="passwordArea" class="hidden mb-6">
+                <label class="block mb-2 font-bold">🔐 PASSWORD_REQUIRED:</label>
+                <input type="password" id="passwordInput" class="w-full p-3 rounded bg-black/50 border border-green-500 text-green-400 font-mono" placeholder="Enter file password">
+                <button id="submitPassword" class="mt-3 w-full bg-green-600 text-black py-2 rounded font-bold">VERIFY</button>
+            </div>
+            
+            <!-- Virus Scan Area -->
+            <div id="scanArea" class="hidden mb-6">
+                <div class="text-center mb-3">
+                    <div class="text-4xl mb-2">🦠</div>
+                    <p class="font-bold">>_ INITIATING_VIRUS_SCAN</p>
+                </div>
+                
+                <!-- Scan Steps -->
+                <div class="space-y-3">
+                    <div id="scanStep1" class="flex items-center gap-3 text-sm opacity-50">
+                        <span>🔍</span> <span>Scanning file headers...</span>
+                        <span class="ml-auto">⏳</span>
+                    </div>
+                    <div id="scanStep2" class="flex items-center gap-3 text-sm opacity-50">
+                        <span>📊</span> <span>Analyzing file structure...</span>
+                        <span class="ml-auto">⏳</span>
+                    </div>
+                    <div id="scanStep3" class="flex items-center gap-3 text-sm opacity-50">
+                        <span>🛡️</span> <span>Checking against virus database...</span>
+                        <span class="ml-auto">⏳</span>
+                    </div>
+                    <div id="scanStep4" class="flex items-center gap-3 text-sm opacity-50">
+                        <span>✅</span> <span>Final security verification...</span>
+                        <span class="ml-auto">⏳</span>
+                    </div>
+                </div>
+                
+                <!-- Scan Progress Bar -->
+                <div class="mt-4">
+                    <div class="bg-black/50 rounded-full h-2 overflow-hidden">
+                        <div id="scanProgress" class="progress-scan h-2 rounded-full" style="width: 0%"></div>
+                    </div>
+                    <p id="scanPercent" class="text-xs text-center mt-2">0%</p>
+                </div>
+            </div>
+            
+            <!-- Download Button Area -->
+            <div id="downloadArea" class="hidden">
+                <button id="downloadBtn" class="w-full bg-green-600 text-black py-3 rounded-lg font-bold text-lg transition-all hover:scale-105">
+                    ⬇️ DOWNLOAD_SECURE_FILE ⬇️
+                </button>
+                <div class="flex justify-between mt-3 text-xs opacity-70">
+                    <span>🔒 ENCRYPTED</span>
+                    <span id="downloadLimitInfo">📊 DOWNLOADS_REMAINING: --</span>
+                    <span>⏱️ EXPIRES: --</span>
+                </div>
+            </div>
+            
+            <!-- Error Area -->
+            <div id="errorArea" class="hidden mt-4 text-center">
+                <div class="text-red-500 font-bold">⚠️ ACCESS_DENIED ⚠️</div>
+                <p id="errorMessage" class="text-sm mt-2"></p>
+            </div>
+            
+            <!-- Footer -->
+            <div class="mt-6 text-center text-xs opacity-50 font-mono">
+                <p>█▓▒░ SECURE_CONNECTION ░▒▓█ | █▓▒░ SCAN
