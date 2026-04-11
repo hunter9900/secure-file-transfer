@@ -3,108 +3,167 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NEO TRANSFER | Login</title>
+    <title>JARVIS TRANSFER | Secure File Transfer System</title>
     
-    <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Orbitron:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <link rel="stylesheet" href="/secure-file-transfer/jarvis.css">
     
     <style>
-        :root { --matrix-green: #00ff41; }
-        body {
-            background: linear-gradient(135deg, #050805 0%, #0a0f0a 100%);
-            color: var(--matrix-green);
-            font-family: 'Share Tech Mono', monospace;
+        /* Additional JARVIS-specific styles */
+        .jarvis-glow-text {
+            text-shadow: 0 0 20px var(--jarvis-blue), 0 0 40px var(--jarvis-glow);
         }
-        .card {
-            background: rgba(10, 15, 10, 0.95);
-            backdrop-filter: blur(10px);
-            border: 1px solid var(--matrix-green);
-            border-radius: 1rem;
+        
+        .jarvis-circle {
+            width: 100px;
+            height: 100px;
+            border: 2px solid var(--jarvis-blue);
+            border-radius: 50%;
+            position: relative;
+            margin: 0 auto 20px;
+            animation: rotate 10s linear infinite;
         }
-        .input-field {
-            background: rgba(0, 0, 0, 0.8);
-            border: 1px solid var(--matrix-green);
-            color: var(--matrix-green);
-            padding: 10px;
-            border-radius: 8px;
-            width: 100%;
-            font-family: monospace;
+        
+        .jarvis-circle::before {
+            content: '⟁';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 40px;
+            color: var(--jarvis-blue);
+            animation: pulse 2s infinite;
         }
-        .btn-primary {
-            background: linear-gradient(135deg, #00ff41 0%, #00cc33 100%);
-            color: #000;
-            padding: 12px;
-            border-radius: 8px;
-            font-weight: bold;
-            width: 100%;
-            cursor: pointer;
+        
+        @keyframes rotate {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
         }
-        .glow-text {
-            text-shadow: 0 0 10px var(--matrix-green);
+        
+        .jarvis-voice-wave {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 4px;
+            height: 40px;
+        }
+        
+        .voice-bar {
+            width: 3px;
+            background: var(--jarvis-blue);
+            animation: voice 1s infinite;
+        }
+        
+        @keyframes voice {
+            0%, 100% { height: 10px; }
+            50% { height: 30px; }
         }
     </style>
 </head>
-<body>
-    <div class="container mx-auto px-4 py-12 max-w-md">
-        <div class="card p-8">
+<body class="jarvis-theme">
+    <!-- Particle Effect Container -->
+    <div id="particles" class="jarvis-particles"></div>
+    
+    <div class="container mx-auto px-4 py-12 max-w-md relative z-10">
+        <!-- JARVIS Circle Logo -->
+        <div class="jarvis-circle"></div>
+        
+        <!-- Main Card -->
+        <div class="jarvis-card p-8 jarvis-float">
             <div class="text-center mb-6">
-                <div class="text-4xl mb-2">🔐</div>
-                <h1 class="text-2xl font-bold glow-text" style="font-family: 'Orbitron', monospace;">NEO TRANSFER</h1>
-                <p class="text-xs opacity-70 mt-2">SECURE_ACCESS_PORTAL</p>
+                <h1 class="text-3xl font-bold jarvis-glow-text" style="font-family: 'Orbitron', monospace;">JARVIS TRANSFER</h1>
+                <div class="jarvis-voice-wave mt-4">
+                    <div class="voice-bar" style="animation-delay: 0s"></div>
+                    <div class="voice-bar" style="animation-delay: 0.2s"></div>
+                    <div class="voice-bar" style="animation-delay: 0.4s"></div>
+                    <div class="voice-bar" style="animation-delay: 0.6s"></div>
+                    <div class="voice-bar" style="animation-delay: 0.8s"></div>
+                </div>
+                <p class="text-xs opacity-70 mt-2 jarvis-typing" style="width: 200px; margin: 0 auto;">>_ SECURE_ACCESS_PROTOCOL</p>
+            </div>
+            
+            <!-- Status Indicators -->
+            <div class="flex justify-center gap-3 mb-6">
+                <div class="jarvis-status">
+                    <span class="jarvis-led"></span>
+                    <span>SYSTEM_ONLINE</span>
+                </div>
+                <div class="jarvis-status">
+                    <span class="jarvis-led"></span>
+                    <span>ENCRYPTION_ACTIVE</span>
+                </div>
             </div>
             
             <!-- Tabs -->
             <div class="flex gap-2 mb-6">
-                <button id="loginTab" class="flex-1 py-2 rounded border border-green-500 bg-green-500/20">LOGIN</button>
-                <button id="waitingTab" class="flex-1 py-2 rounded border border-green-500">WAITING LIST</button>
+                <button id="loginTab" class="flex-1 py-2 rounded-lg border border-jarvis-blue bg-jarvis-blue/20 jarvis-glow-text">LOGIN</button>
+                <button id="waitingTab" class="flex-1 py-2 rounded-lg border border-jarvis-blue">WAITING LIST</button>
             </div>
             
             <!-- Login Form -->
             <div id="loginForm">
                 <div class="mb-4">
-                    <label class="block mb-2 text-sm">EMAIL_ADDRESS:</label>
-                    <input type="email" id="loginEmail" class="input-field" placeholder="user@example.com">
+                    <label class="block mb-2 text-sm opacity-70">>_ EMAIL_ADDRESS</label>
+                    <input type="email" id="loginEmail" class="jarvis-input" placeholder="user@example.com">
                 </div>
                 <div class="mb-4">
-                    <label class="block mb-2 text-sm">PASSWORD:</label>
-                    <input type="password" id="loginPassword" class="input-field" placeholder="••••••••">
+                    <label class="block mb-2 text-sm opacity-70">>_ PASSWORD</label>
+                    <input type="password" id="loginPassword" class="jarvis-input" placeholder="••••••••">
                 </div>
-                <button id="loginBtn" class="btn-primary">🔓 LOGIN</button>
+                <button id="loginBtn" class="jarvis-btn jarvis-btn-primary w-full">
+                    <span id="loginText">🔓 INITIALIZE_LOGIN</span>
+                    <span id="loginSpinner" class="hidden">⏳ PROCESSING...</span>
+                </button>
             </div>
             
             <!-- Waiting List Form -->
             <div id="waitingForm" class="hidden">
                 <div class="mb-4">
-                    <label class="block mb-2 text-sm">EMAIL_ADDRESS:</label>
-                    <input type="email" id="waitingEmail" class="input-field" placeholder="user@example.com">
+                    <label class="block mb-2 text-sm opacity-70">>_ EMAIL_ADDRESS</label>
+                    <input type="email" id="waitingEmail" class="jarvis-input" placeholder="user@example.com">
                 </div>
                 <div class="mb-4">
-                    <label class="block mb-2 text-sm">FULL_NAME:</label>
-                    <input type="text" id="waitingName" class="input-field" placeholder="John Doe">
+                    <label class="block mb-2 text-sm opacity-70">>_ FULL_NAME</label>
+                    <input type="text" id="waitingName" class="jarvis-input" placeholder="John Doe">
                 </div>
-                <button id="joinWaitingBtn" class="btn-primary">📝 JOIN WAITING LIST</button>
+                <button id="joinWaitingBtn" class="jarvis-btn w-full">📝 REQUEST_ACCESS</button>
             </div>
             
             <div id="messageArea" class="mt-4 hidden">
-                <div id="messageText" class="text-sm text-center p-3 rounded"></div>
+                <div id="messageText" class="text-sm text-center p-3 rounded bg-jarvis-blue/10 border border-jarvis-blue/30"></div>
             </div>
         </div>
         
+        <!-- Footer -->
         <div class="mt-6 text-center text-xs opacity-50 font-mono">
-            <p>█▓▒░ SECURE_CONNECTION ░▒▓█ | █▓▒░ EU_HOSTED ░▒▓█</p>
+            <p>█▓▒░ JARVIS_SECURE_TRANSFER ░▒▓█ | █▓▒░ EU_HOSTED ░▒▓█ | █▓▒░ ENCRYPTED ░▒▓█</p>
         </div>
     </div>
 
     <script>
-        // ========== SUPABASE CONFIGURATION ==========
+        // Supabase config
         const supabaseUrl = 'https://heijzhvqyfjrhcmxagxs.supabase.co';
-        const supabaseAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhlaWp6aHZxeWZqcmhjbXhhZ3hzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU1ODQzMzIsImV4cCI6MjA5MTE2MDMzMn0.BRnW1xP8rXuat4D4HWKxvN0a_5UurauVnNVJorvVAoo';  // ← PASTE YOUR ANON KEY HERE
-        
-        // Initialize Supabase with a different variable name to avoid conflicts
+        const supabaseAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhlaWp6aHZxeWZqcmhjbXhhZ3hzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU1ODQzMzIsImV4cCI6MjA5MTE2MDMzMn0.BRnW1xP8rXuat4D4HWKxvN0a_5UurauVnNVJorvVAoo';
         const supabaseClient = window.supabase.createClient(supabaseUrl, supabaseAnonKey);
         
-        // ========== HELPER FUNCTIONS ==========
+        // Particle effect
+        function createParticles() {
+            const container = document.getElementById('particles');
+            for (let i = 0; i < 50; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+                particle.style.left = Math.random() * 100 + '%';
+                particle.style.animationDelay = Math.random() * 4 + 's';
+                particle.style.animationDuration = 3 + Math.random() * 2 + 's';
+                particle.style.width = particle.style.height = (2 + Math.random() * 3) + 'px';
+                container.appendChild(particle);
+            }
+        }
+        
+        createParticles();
+        
         function showMessage(msg, isError = false) {
             const area = document.getElementById('messageArea');
             const text = document.getElementById('messageText');
@@ -122,74 +181,68 @@
             return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
         }
         
-        // ========== TAB SWITCHING ==========
+        // Tab switching
         document.getElementById('loginTab').addEventListener('click', () => {
-            document.getElementById('loginTab').classList.add('bg-green-500/20');
-            document.getElementById('waitingTab').classList.remove('bg-green-500/20');
+            document.getElementById('loginTab').classList.add('bg-jarvis-blue/20');
+            document.getElementById('waitingTab').classList.remove('bg-jarvis-blue/20');
             document.getElementById('loginForm').classList.remove('hidden');
             document.getElementById('waitingForm').classList.add('hidden');
         });
         
         document.getElementById('waitingTab').addEventListener('click', () => {
-            document.getElementById('waitingTab').classList.add('bg-green-500/20');
-            document.getElementById('loginTab').classList.remove('bg-green-500/20');
+            document.getElementById('waitingTab').classList.add('bg-jarvis-blue/20');
+            document.getElementById('loginTab').classList.remove('bg-jarvis-blue/20');
             document.getElementById('loginForm').classList.add('hidden');
             document.getElementById('waitingForm').classList.remove('hidden');
         });
         
-        // ========== LOGIN HANDLER ==========
+        // Login handler
         document.getElementById('loginBtn').addEventListener('click', async () => {
             const email = document.getElementById('loginEmail').value.trim();
             const password = document.getElementById('loginPassword').value;
+            const btn = document.getElementById('loginBtn');
+            const btnText = document.getElementById('loginText');
+            const btnSpinner = document.getElementById('loginSpinner');
             
             if (!email || !password) {
                 showMessage('Please enter email and password', true);
                 return;
             }
             
-            showMessage('>_ AUTHENTICATING...', false);
+            btnText.classList.add('hidden');
+            btnSpinner.classList.remove('hidden');
+            btn.disabled = true;
             
             try {
-                // Query Supabase for user
                 const { data, error } = await supabaseClient
                     .from('users')
                     .select('*')
                     .eq('email', email);
                 
-                if (error) {
-                    console.error('Supabase error:', error);
-                    showMessage('Authentication error. Please try again.', true);
-                    return;
-                }
-                
-                if (!data || data.length === 0) {
-                    showMessage('Access Denied: No account found. Join the waiting list.', true);
+                if (error || !data || data.length === 0) {
+                    showMessage('Access Denied: No account found', true);
                     return;
                 }
                 
                 const user = data[0];
-                
                 if (user.status !== 'active') {
-                    showMessage('Account pending approval. You will receive an email when activated.', true);
+                    showMessage('Account pending approval', true);
                     return;
                 }
                 
-                // Verify password
                 const hashedInput = await hashPassword(password);
-                
                 if (hashedInput !== user.password_hash) {
                     showMessage('Invalid password', true);
                     return;
                 }
                 
-                // Update last login
                 await supabaseClient
                     .from('users')
                     .update({ last_login: new Date().toISOString() })
                     .eq('email', email);
                 
-                // Store session
                 localStorage.setItem('neo_user', JSON.stringify({
+                    id: user.id,
                     email: user.email,
                     name: user.full_name,
                     role: user.role,
@@ -197,18 +250,21 @@
                     loginTime: new Date().toISOString()
                 }));
                 
-                showMessage('✓ ACCESS GRANTED! Redirecting...', false);
+                showMessage('✓ ACCESS GRANTED! Welcome back, ' + (user.full_name || user.email));
                 setTimeout(() => {
                     window.location.href = '/secure-file-transfer/';
-                }, 1000);
+                }, 1500);
                 
             } catch (error) {
-                console.error('Login error:', error);
-                showMessage('Login failed. Please try again.', true);
+                showMessage('Login failed', true);
+            } finally {
+                btnText.classList.remove('hidden');
+                btnSpinner.classList.add('hidden');
+                btn.disabled = false;
             }
         });
         
-        // ========== WAITING LIST HANDLER ==========
+        // Waiting list handler
         document.getElementById('joinWaitingBtn').addEventListener('click', async () => {
             const email = document.getElementById('waitingEmail').value.trim();
             const name = document.getElementById('waitingName').value.trim();
@@ -218,28 +274,17 @@
                 return;
             }
             
-            // Validate email format
-            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-            if (!emailRegex.test(email)) {
-                showMessage('Please enter a valid email address', true);
-                return;
-            }
-            
-            showMessage('>_ SUBMITTING TO WAITING LIST...', false);
-            
             try {
-                // Check if already on waiting list
                 const { data: existing } = await supabaseClient
                     .from('waiting_list')
                     .select('email')
                     .eq('email', email);
                 
                 if (existing && existing.length > 0) {
-                    showMessage('You are already on the waiting list!', true);
+                    showMessage('Already on waiting list', true);
                     return;
                 }
                 
-                // Get position
                 const { data: positionData } = await supabaseClient
                     .from('waiting_list')
                     .select('position')
@@ -248,32 +293,23 @@
                 
                 const newPosition = (positionData && positionData[0]?.position) ? positionData[0].position + 1 : 1;
                 
-                // Add to waiting list
                 const { error } = await supabaseClient
                     .from('waiting_list')
-                    .insert([{
-                        email: email,
-                        name: name,
-                        position: newPosition,
-                        status: 'pending'
-                    }]);
+                    .insert([{ email, name, position: newPosition, status: 'pending' }]);
                 
                 if (error) {
-                    console.error('Insert error:', error);
                     showMessage('Error joining waiting list', true);
                 } else {
-                    showMessage(`✓ Added to waiting list! Position: #${newPosition}. You will be notified when access is available.`, false);
+                    showMessage(`✓ Request received! Position: #${newPosition}`);
                     document.getElementById('waitingEmail').value = '';
                     document.getElementById('waitingName').value = '';
                 }
-                
             } catch (error) {
-                console.error('Waiting list error:', error);
                 showMessage('Failed to join waiting list', true);
             }
         });
         
-        // ========== CHECK EXISTING SESSION ==========
+        // Check existing session
         const savedUser = localStorage.getItem('neo_user');
         if (savedUser) {
             try {
@@ -282,8 +318,6 @@
                     const loginTime = new Date(user.loginTime);
                     const now = new Date();
                     const hoursDiff = (now - loginTime) / (1000 * 60 * 60);
-                    
-                    // Session expires after 24 hours
                     if (hoursDiff < 24) {
                         window.location.href = '/secure-file-transfer/';
                     } else {
