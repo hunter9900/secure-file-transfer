@@ -205,7 +205,10 @@
                 <div class="text-sm">
                     <span class="opacity-70">>_ USER:</span> ${user.email}
                 </div>
-                <button id="logoutBtn" class="text-sm underline cursor-pointer">LOGOUT</button>
+                <button id="logoutBtn" class="text-sm underline cursor-pointer">LOGOUT</button> 
+                
+                // In the userBar HTML, add this after the logout button:
+<a href="/secure-file-transfer/admin.html" class="ml-3 text-sm underline">ADMIN</a>
             `;
             container.insertBefore(userBar, container.firstChild);
             
