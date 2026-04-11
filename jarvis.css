@@ -1,0 +1,303 @@
+/* JARVIS-STYLE THEME */
+@import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Orbitron:wght@400;500;600;700;800;900&display=swap');
+
+:root {
+    --jarvis-blue: #00a8ff;
+    --jarvis-dark: #0a0e1a;
+    --jarvis-darker: #050810;
+    --jarvis-glow: rgba(0, 168, 255, 0.3);
+    --jarvis-blue-dark: #0088cc;
+    --jarvis-text: #ccf4ff;
+    --jarvis-accent: #00e5ff;
+}
+
+/* Base JARVIS Theme */
+body.jarvis-theme {
+    background: radial-gradient(ellipse at 20% 30%, #0a0e1a 0%, #050810 100%);
+    color: var(--jarvis-text);
+    font-family: 'Orbitron', 'Share Tech Mono', monospace;
+    position: relative;
+    min-height: 100vh;
+    overflow-x: hidden;
+}
+
+/* Animated Grid Background */
+body.jarvis-theme::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-image: 
+        linear-gradient(rgba(0, 168, 255, 0.05) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0, 168, 255, 0.05) 1px, transparent 1px);
+    background-size: 50px 50px;
+    pointer-events: none;
+    z-index: 0;
+    animation: gridMove 20s linear infinite;
+}
+
+@keyframes gridMove {
+    0% { transform: translate(0, 0); }
+    100% { transform: translate(50px, 50px); }
+}
+
+/* Scanning Line Effect */
+body.jarvis-theme::after {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(to bottom, transparent 0%, transparent 95%, var(--jarvis-glow) 100%);
+    pointer-events: none;
+    animation: scanLine 8s linear infinite;
+    z-index: 1;
+}
+
+@keyframes scanLine {
+    0% { transform: translateY(-100%); }
+    100% { transform: translateY(100%); }
+}
+
+/* JARVIS Cards */
+.jarvis-card {
+    background: rgba(10, 14, 26, 0.7);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(0, 168, 255, 0.3);
+    border-radius: 20px;
+    box-shadow: 0 8px 32px rgba(0, 168, 255, 0.1);
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.jarvis-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, var(--jarvis-blue), transparent);
+    animation: borderScan 3s infinite;
+}
+
+@keyframes borderScan {
+    0% { left: -100%; }
+    100% { left: 100%; }
+}
+
+.jarvis-card:hover {
+    border-color: var(--jarvis-blue);
+    box-shadow: 0 8px 32px rgba(0, 168, 255, 0.2);
+    transform: translateY(-2px);
+}
+
+/* JARVIS Input Fields */
+.jarvis-input {
+    background: rgba(0, 0, 0, 0.6);
+    border: 1px solid rgba(0, 168, 255, 0.3);
+    color: var(--jarvis-text);
+    padding: 12px 16px;
+    border-radius: 12px;
+    width: 100%;
+    font-family: 'Share Tech Mono', monospace;
+    transition: all 0.3s ease;
+}
+
+.jarvis-input:focus {
+    outline: none;
+    border-color: var(--jarvis-blue);
+    box-shadow: 0 0 15px rgba(0, 168, 255, 0.3);
+}
+
+/* JARVIS Buttons */
+.jarvis-btn {
+    background: linear-gradient(135deg, rgba(0, 168, 255, 0.2) 0%, rgba(0, 136, 204, 0.2) 100%);
+    border: 1px solid var(--jarvis-blue);
+    color: var(--jarvis-text);
+    padding: 12px 24px;
+    border-radius: 12px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.jarvis-btn::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    background: radial-gradient(circle, var(--jarvis-glow), transparent);
+    transform: translate(-50%, -50%);
+    transition: width 0.6s, height 0.6s;
+}
+
+.jarvis-btn:hover::before {
+    width: 300px;
+    height: 300px;
+}
+
+.jarvis-btn:hover {
+    background: linear-gradient(135deg, rgba(0, 168, 255, 0.4) 0%, rgba(0, 136, 204, 0.4) 100%);
+    box-shadow: 0 0 20px rgba(0, 168, 255, 0.4);
+    transform: scale(1.02);
+}
+
+.jarvis-btn-primary {
+    background: linear-gradient(135deg, var(--jarvis-blue) 0%, var(--jarvis-blue-dark) 100%);
+    color: #000;
+    border: none;
+}
+
+.jarvis-btn-primary:hover {
+    box-shadow: 0 0 25px var(--jarvis-blue);
+}
+
+/* JARVIS Progress Bar */
+.jarvis-progress {
+    background: rgba(0, 168, 255, 0.1);
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.jarvis-progress-bar {
+    background: linear-gradient(90deg, var(--jarvis-blue), var(--jarvis-accent));
+    height: 100%;
+    transition: width 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.jarvis-progress-bar::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+    animation: shimmer 2s infinite;
+}
+
+@keyframes shimmer {
+    0% { transform: translateX(-100%); }
+    100% { transform: translateX(100%); }
+}
+
+/* JARVIS Typing Effect */
+.jarvis-typing {
+    overflow: hidden;
+    border-right: 2px solid var(--jarvis-blue);
+    white-space: nowrap;
+    animation: typing 3s steps(40, end), blink-caret 0.75s step-end infinite;
+}
+
+@keyframes typing {
+    from { width: 0; }
+    to { width: 100%; }
+}
+
+@keyframes blink-caret {
+    from, to { border-color: transparent; }
+    50% { border-color: var(--jarvis-blue); }
+}
+
+/* Holographic Elements */
+.jarvis-hologram {
+    position: relative;
+    background: linear-gradient(135deg, rgba(0, 168, 255, 0.05) 0%, rgba(0, 136, 204, 0.05) 100%);
+    border: 1px solid rgba(0, 168, 255, 0.2);
+    border-radius: 20px;
+}
+
+/* Status Indicators */
+.jarvis-status {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 4px 12px;
+    background: rgba(0, 168, 255, 0.1);
+    border-radius: 20px;
+    font-size: 12px;
+}
+
+.jarvis-led {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--jarvis-blue);
+    box-shadow: 0 0 8px var(--jarvis-blue);
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+}
+
+/* Floating Animation */
+.jarvis-float {
+    animation: float 6s ease-in-out infinite;
+}
+
+@keyframes float {
+    0%, 100% { transform: translateY(0px); }
+    50% { transform: translateY(-10px); }
+}
+
+/* Particle Effect Container */
+.jarvis-particles {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 0;
+}
+
+.particle {
+    position: absolute;
+    background: var(--jarvis-blue);
+    border-radius: 50%;
+    opacity: 0;
+    animation: particleFloat 4s infinite;
+}
+
+@keyframes particleFloat {
+    0% {
+        opacity: 0;
+        transform: translateY(100vh) scale(0);
+    }
+    10% {
+        opacity: 0.5;
+    }
+    90% {
+        opacity: 0.5;
+    }
+    100% {
+        opacity: 0;
+        transform: translateY(-100vh) scale(1);
+    }
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .jarvis-card {
+        margin: 10px;
+        padding: 16px;
+    }
+    
+    .jarvis-btn {
+        padding: 8px 16px;
+        font-size: 14px;
+    }
+}
