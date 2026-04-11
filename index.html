@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>NEO TRANSFER | Secure File Transfer</title>
@@ -145,6 +146,11 @@
     </div>
 
     <script>
+        // ========== SUPABASE CONFIGURATION ==========
+        const supabaseUrl = 'https://heijzhvqyfjrhcmxagxs.supabase.co';
+        const supabaseAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhlaWp6aHZxeWZqcmhjbXhhZ3hzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU1ODQzMzIsImV4cCI6MjA5MTE2MDMzMn0.BRnW1xP8rXuat4D4HWKxvN0a_5UurauVnNVJorvVAoo';  // ← PASTE YOUR ANON KEY HERE
+        const supabaseClient = window.supabase.createClient(supabaseUrl, supabaseAnonKey);
+        
         // ========== YOUR CLOUDINARY CREDENTIALS ==========
         const CLOUD_NAME = 'dmskjzsi1';
         const UPLOAD_PRESET = 'secure_uploads';
