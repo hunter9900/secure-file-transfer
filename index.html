@@ -299,7 +299,7 @@
                     if (xhr.status === 200) {
                         const response = JSON.parse(xhr.responseText);
                         // Create download link
-                        const shareUrl = `${window.location.origin}/download.html?id=${response.public_id}`;
+                        const shareUrl = `${window.location.origin}/secure-file-transfer/download.html?id=${response.public_id}`;
                         document.getElementById('shareLink').value = shareUrl;
                         progressArea.classList.add('hidden');
                         resultArea.classList.remove('hidden');
