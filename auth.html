@@ -190,7 +190,7 @@
             localStorage.setItem('neo_user', JSON.stringify({ id: user.id, email: user.email, full_name: user.full_name, role: user.role }));
             
             showMessage('✓ ACCESS GRANTED! Redirecting...', false);
-            setTimeout(() => { window.location.href = '/'; }, 1500);
+            setTimeout(() => { window.location.href = '/secure-file-transfer/'; }, 1500);
         });
         
         document.getElementById('joinWaitingBtn').addEventListener('click', async () => {
